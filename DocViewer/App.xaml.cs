@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocViewer.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,5 +14,12 @@ namespace DocViewer
     /// </summary>
     public partial class App : Application
     {
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            var vm = new MainWindowViewModel();
+            var window = new MainWindow();
+            window.DataContext = vm;
+            window.Show();
+        }
     }
 }

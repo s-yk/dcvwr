@@ -3,8 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DocViewer.ViewModel"
+        xmlns:b="clr-namespace:DocViewer.Behavior"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
         Title="MainWindow" Height="401.429" Width="800">
+    <!--<Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>-->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -16,13 +22,20 @@
                     <Button Content="prev" />
                     <Button Content="next" />
                     <Separator />
-                    <TextBlock VerticalAlignment="Center">ZZZZ</TextBlock>
-                    <TextBlock VerticalAlignment="Center" Margin="10,0,10,0">/</TextBlock>
-                    <TextBlock VerticalAlignment="Center">ZZZZ</TextBlock>
+                    <DockPanel Margin="10,0,10,0">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right"
+                                   Text="{Binding PageNum.Value, Mode=OneWay}"></TextBlock>
+                        <TextBlock VerticalAlignment="Center" Margin="10,0,10,0">/</TextBlock>
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right"
+                                   Text="{Binding TotalPageNum.Value, Mode=OneWay}"></TextBlock>
+                    </DockPanel>
                 </ToolBar>
             </ToolBarTray>
         </DockPanel>
-        <DocumentViewer Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
+        <DocumentViewer
+            Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0"
+            Document="{Binding Document.Value}"
+            Name="viewer">
             <DocumentViewer.Resources>
                 <Style TargetType="ToolBar">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -31,6 +44,14 @@
                     <Setter Property="Visibility" Value="Collapsed" />
                 </Style>
             </DocumentViewer.Resources>
+            <i:Interaction.Behaviors>
+                <b:DocumentViewerBehavior PageNum="{Binding PageNum.Value}" />
+            </i:Interaction.Behaviors>
         </DocumentViewer>
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <i:InvokeCommandAction Command="{Binding LoadCommand, Mode=OneWay}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
     </Grid>
 </Window>
