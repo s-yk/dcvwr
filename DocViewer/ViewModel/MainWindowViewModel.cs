@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Packaging;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Xps.Packaging;
@@ -13,6 +14,7 @@ namespace DocViewer.ViewModel
 {
     public class MainWindowViewModel
     {
+        private Regex _regex = new Regex(@"(\d+)-(\d+)", RegexOptions.Compiled);
 
         /// <summary>
         /// モデル
@@ -77,6 +79,16 @@ namespace DocViewer.ViewModel
                     num++;
                     UpdatePageNum(num.ToString());
                 }
+                else
+                {
+                    var matches = _regex.Matches(this.PageNum.Value);
+                    if (matches.Count > 0)
+                    {
+                        var first = matches[0].Groups[1].Value;
+                        var last = matches[0].Groups[2].Value;
+                        this.PageNum.Value = (int.Parse(first) + 1) + "-" + (int.Parse(last) + 1);
+                    }
+                }
             });
 
             // Prev
@@ -87,6 +99,16 @@ namespace DocViewer.ViewModel
                 {
                     num--;
                     UpdatePageNum(num.ToString());
+                }
+                else
+                {
+                    var matches = _regex.Matches(this.PageNum.Value);
+                    if (matches.Count > 0)
+                    {
+                        var first = matches[0].Groups[1].Value;
+                        var last = matches[0].Groups[2].Value;
+                        this.PageNum.Value = (int.Parse(first) - 1) + "-" + (int.Parse(last) - 1);
+                    }
                 }
             });
 
