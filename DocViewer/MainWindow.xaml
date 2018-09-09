@@ -19,8 +19,16 @@
         <DockPanel>
             <ToolBarTray VerticalAlignment="Top">
                 <ToolBar>
-                    <Button Content="prev" />
-                    <Button Content="next" />
+                    <Button Content="prev" IsEnabled="{Binding CanPrev.Value}">
+                        <i:Interaction.Behaviors>
+                            <b:PrevButtonBehavior Command="{Binding PrevButtonCommand}"/>
+                        </i:Interaction.Behaviors>
+                    </Button>
+                    <Button Content="next" IsEnabled="{Binding CanNext.Value}">
+                        <i:Interaction.Behaviors>
+                            <b:NextButtonBehavior Command="{Binding NextButtonCommand}"/>
+                        </i:Interaction.Behaviors>
+                    </Button>
                     <Separator />
                     <DockPanel Margin="10,0,10,0">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right"

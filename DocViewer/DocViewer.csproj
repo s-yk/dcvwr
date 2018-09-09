@@ -94,6 +94,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behavior\DocumentViewerBehavior.cs" />
+    <Compile Include="Behavior\NextButtonBehavior.cs" />
+    <Compile Include="Behavior\PrevButtonBehavior.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

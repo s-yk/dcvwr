@@ -13,12 +13,12 @@ namespace DocViewer.Behavior
     {
         public string PageNum
         {
-            get { return (string)GetValue(MessageProperty); }
-            set { SetValue(MessageProperty, value); }
+            get { return (string)GetValue(PageNumProperty); }
+            set { SetValue(PageNumProperty, value); }
         }
 
-        public static readonly DependencyProperty MessageProperty =
-            DependencyProperty.Register(nameof(PageNum), typeof(string), typeof(DocumentViewerBehavior), new UIPropertyMetadata(null));
+        public static readonly DependencyProperty PageNumProperty =
+            DependencyProperty.Register(nameof(PageNum), typeof(string), typeof(DocumentViewerBehavior), new PropertyMetadata(ChangePageNum));
 
         protected override void OnAttached()
         {
@@ -34,6 +34,20 @@ namespace DocViewer.Behavior
 
         private void OnPageViewsChanged(object sender, EventArgs e)
         {
+        }
+
+        private static void ChangePageNum(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!int.TryParse(e.NewValue.ToString(), out int newValue)) return;
+
+            var behavior = sender as DocumentViewerBehavior;
+            if (behavior == null) return;
+
+            var viewer = behavior.AssociatedObject;
+            if (viewer.CanGoToPage(newValue))
+            {
+                viewer.GoToPage(newValue);
+            }
         }
     }
 }

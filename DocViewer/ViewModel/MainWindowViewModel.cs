@@ -1,12 +1,9 @@
 ﻿using Reactive.Bindings;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
-using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Xps.Packaging;
@@ -18,39 +15,70 @@ namespace DocViewer.ViewModel
         /// <summary>
         /// ページ番号
         /// </summary>
-        public ReactiveProperty<string> PageNum { get; private set; }
+        public ReactiveProperty<string> PageNum { get; set; } = new ReactiveProperty<string>();
 
         /// <summary>
         /// 総ページ数
         /// </summary>
-        public ReactiveProperty<string> TotalPageNum { get; private set; }
+        public ReactiveProperty<string> TotalPageNum { get; private set; } = new ReactiveProperty<string>();
 
         /// <summary>
         /// ドキュメント
         /// </summary>
-        public ReactiveProperty<IDocumentPaginatorSource> Document { get; private set; }
+        public ReactiveProperty<IDocumentPaginatorSource> Document { get; private set; } = new ReactiveProperty<IDocumentPaginatorSource>();
+
+        public ReactiveProperty<bool> CanPrev { get; private set; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<bool> CanNext { get; private set; } = new ReactiveProperty<bool>();
 
         /// <summary>
         /// Loadコマンド
         /// </summary>
         public ReactiveCommand LoadCommand { get; private set; }
 
+        /// <summary>
+        /// 次ページコマンド
+        /// </summary>
+        public ReactiveCommand NextButtonCommand { get; private set; }
+
+        /// <summary>
+        /// 前ページコマンド
+        /// </summary>
+        public ReactiveCommand PrevButtonCommand { get; private set; }
+
         public MainWindowViewModel()
         {
-            this.PageNum = new ReactiveProperty<string>();
-            this.TotalPageNum = new ReactiveProperty<string>();
-            this.Document = new ReactiveProperty<IDocumentPaginatorSource>();
+            this.NextButtonCommand = CanNext.ToReactiveCommand();
+            this.NextButtonCommand.Subscribe(_ =>
+            {
+                if (int.TryParse(this.PageNum.Value, out int num))
+                {
+                    num++;
+                    this.PageNum.Value = num.ToString();
+                    if (PageNum.Value == TotalPageNum.Value) this.CanNext.Value = false;
+                    this.CanPrev.Value = true;
+                }
+            });
+            this.PrevButtonCommand = CanPrev.ToReactiveCommand();
+            this.PrevButtonCommand.Subscribe(_ => 
+            {
+                if(int.TryParse(this.PageNum.Value, out int num))
+                {
+                    num--;
+                    this.PageNum.Value = num.ToString();
+                    if (PageNum.Value == "1") CanPrev.Value = false;
+                    this.CanNext.Value = true;
+                }
+            });
+
             this.LoadCommand = new ReactiveCommand();
-            this.LoadCommand.Subscribe(_ => {
+            this.LoadCommand.Subscribe(_ => 
+            {
                 this.Document.Value = LoadDocument();
                 this.TotalPageNum.Value = this.Document.Value.DocumentPaginator.PageCount.ToString();
                 this.PageNum.Value = "1";
             });
-        }
-
-        private string UpdatePageNum()
-        {
-            return "100";
+            this.CanPrev.Value = false;
+            this.CanNext.Value = true;
         }
 
         private IDocumentPaginatorSource LoadDocument()
