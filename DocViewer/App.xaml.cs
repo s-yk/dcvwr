@@ -1,4 +1,5 @@
-﻿using DocViewer.ViewModel;
+﻿using DocViewer.Model;
+using DocViewer.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,7 +17,7 @@ namespace DocViewer
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var vm = new MainWindowViewModel();
+            var vm = new MainWindowViewModel(new ViewerModel());
             var window = new MainWindow();
             window.DataContext = vm;
             window.Show();

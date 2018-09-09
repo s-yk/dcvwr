@@ -53,7 +53,7 @@
                 </Style>
             </DocumentViewer.Resources>
             <i:Interaction.Behaviors>
-                <b:DocumentViewerBehavior PageNum="{Binding PageNum.Value}" />
+                <b:DocumentViewerBehavior PageNum="{Binding PageNum.Value, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
         </DocumentViewer>
         <i:Interaction.Triggers>

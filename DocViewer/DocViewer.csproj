@@ -96,6 +96,7 @@
     <Compile Include="Behavior\DocumentViewerBehavior.cs" />
     <Compile Include="Behavior\NextButtonBehavior.cs" />
     <Compile Include="Behavior\PrevButtonBehavior.cs" />
+    <Compile Include="Model\ViewerModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -138,8 +139,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

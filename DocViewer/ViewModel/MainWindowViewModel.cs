@@ -1,4 +1,5 @@
-﻿using Reactive.Bindings;
+﻿using DocViewer.Model;
+using Reactive.Bindings;
 using System;
 using System.IO;
 using System.IO.Packaging;
@@ -12,6 +13,12 @@ namespace DocViewer.ViewModel
 {
     public class MainWindowViewModel
     {
+
+        /// <summary>
+        /// モデル
+        /// </summary>
+        private ViewerModel _model;
+
         /// <summary>
         /// ページ番号
         /// </summary>
@@ -27,7 +34,14 @@ namespace DocViewer.ViewModel
         /// </summary>
         public ReactiveProperty<IDocumentPaginatorSource> Document { get; private set; } = new ReactiveProperty<IDocumentPaginatorSource>();
 
+        /// <summary>
+        /// 前コマンド実行可否
+        /// </summary>
         public ReactiveProperty<bool> CanPrev { get; private set; } = new ReactiveProperty<bool>();
+
+        /// <summary>
+        /// 次コマンド実行可否
+        /// </summary>
         public ReactiveProperty<bool> CanNext { get; private set; } = new ReactiveProperty<bool>();
 
         /// <summary>
@@ -45,52 +59,85 @@ namespace DocViewer.ViewModel
         /// </summary>
         public ReactiveCommand PrevButtonCommand { get; private set; }
 
-        public MainWindowViewModel()
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="model"></param>
+        public MainWindowViewModel(ViewerModel model)
         {
+            this._model = model;
+
+            // Command
+            // Next
             this.NextButtonCommand = CanNext.ToReactiveCommand();
             this.NextButtonCommand.Subscribe(_ =>
             {
                 if (int.TryParse(this.PageNum.Value, out int num))
                 {
                     num++;
-                    this.PageNum.Value = num.ToString();
-                    if (PageNum.Value == TotalPageNum.Value) this.CanNext.Value = false;
-                    this.CanPrev.Value = true;
+                    UpdatePageNum(num.ToString());
                 }
             });
+
+            // Prev
             this.PrevButtonCommand = CanPrev.ToReactiveCommand();
             this.PrevButtonCommand.Subscribe(_ => 
             {
                 if(int.TryParse(this.PageNum.Value, out int num))
                 {
                     num--;
-                    this.PageNum.Value = num.ToString();
-                    if (PageNum.Value == "1") CanPrev.Value = false;
-                    this.CanNext.Value = true;
+                    UpdatePageNum(num.ToString());
                 }
             });
 
+            // Load
             this.LoadCommand = new ReactiveCommand();
             this.LoadCommand.Subscribe(_ => 
             {
-                this.Document.Value = LoadDocument();
-                this.TotalPageNum.Value = this.Document.Value.DocumentPaginator.PageCount.ToString();
-                this.PageNum.Value = "1";
+                this._model.LoadDocument();
+                this.TotalPageNum.Value = this._model.TotalPageNum;
+                this.Document.Value = this._model.Document;
+
+                // ドキュメントロード時のページがデフォルトで1なので個別に設定しておく
+                UpdatePageNum("1");
             });
-            this.CanPrev.Value = false;
-            this.CanNext.Value = true;
         }
 
-        private IDocumentPaginatorSource LoadDocument()
+        /// <summary>
+        /// ページ番号更新
+        /// </summary>
+        /// <param name="updateNum"></param>
+        private void UpdatePageNum(string updateNum)
         {
-            var filePath = Path.Combine(new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.FullName,
-                "TestData", "TestData.xps");
-            IDocumentPaginatorSource source;
-            using(var xpsDocument = new XpsDocument(filePath, FileAccess.Read, CompressionOption.NotCompressed))
+            this.PageNum.Value = updateNum;
+            ApplyButtonEnable();
+        }
+
+        /// <summary>
+        /// ボタン活性更新
+        /// </summary>
+        private void ApplyButtonEnable()
+        {
+            if (this.TotalPageNum.Value == "1")
             {
-                source = xpsDocument.GetFixedDocumentSequence() as IDocumentPaginatorSource;
+                this.CanNext.Value = false;
+                this.CanPrev.Value = false;
             }
-            return source;
+            else if (this.PageNum.Value == this.TotalPageNum.Value)
+            {
+                this.CanNext.Value = false;
+                this.CanPrev.Value = true;
+            }
+            else if (this.PageNum.Value == "1")
+            {
+                this.CanNext.Value = true;
+                this.CanPrev.Value = false;
+            }
+            else
+            {
+                this.CanNext.Value = true;
+                this.CanPrev.Value = true;
+            }
         }
     }
 }
